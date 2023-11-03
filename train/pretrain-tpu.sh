@@ -3,11 +3,11 @@ model=/kaggle/working
 dataset=/kaggle/working/dataset_cache
 #dataset=/kaggle/input/cache2/dataset_cache
 python  /kaggle/input/pretrain-code/pretrain-tpu.py \
-    --train_files /kaggle/input/random-data-1/Pre_training_random_data/\(2\)/灵异/推理侦探/灵魂拼图作者伯百川.txt \
+    --train_files \
     --preprocessing_num_workers 30 \
     --output_dir ${output_model} \
-    --hub_token "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" \
-    --hub_model_id "taotie1/literary-alpaca2-7B" \
+    --hub_token  \
+    --hub_model_id  \
     --use_fast_tokenizer false\
     --learning_rate 1e-5 \
     --data_cache_dir ${dataset} \
