@@ -11,9 +11,9 @@ torchrun --nnodes 1 --nproc_per_node 1 /root/train/pretrain-gpu.py \
     --output_dir ${output_model} \
     --per_device_train_batch_size 2 \
     --preprocessing_num_workers 15 \
-    --hub_token "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" \
+    --hub_token ".." \
     --push_to_hub true \
-    --hub_model_id "taotie1/literary-alpaca2" \
+    --hub_model_id ".." \
     --learning_rate 2e-5 \
     --use_fast_tokenizer false\
     --data_cache_dir ${dataset} \
