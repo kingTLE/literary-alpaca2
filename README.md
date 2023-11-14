@@ -18,11 +18,12 @@
     - [基于LiteraryAlpaca2的中文微调模型Chat](#基于LiteraryAlpaca2的中文微调模型Chat)
   - [模型调用代码示例](#模型调用代码示例)
   - [Gradio快速搭建问答平台](#gradio快速搭建问答平台)
-- [预训练](#-预训练)
-- [微调](#-微调)
+- [词表训练](#词表训练)
+- [预训练](#预训练)
+- [微调](#微调)
   - [数据准备](#数据准备)
   - [微调脚本](#微调脚本)
-- [Llama相关论文](#llama相关论文)
+- [参考论文](#参考论文)
 
 
 
@@ -34,12 +35,16 @@
 
 
 ## 📝 训练数据
-
 | 类型                                                       | 描述                                                         |
 | ---------------------------------------------------------- | ------------------------------------------------------------ |
 | 网络小说                                                   | 高质量长文本数据 |
 | [Math23K](https://opendatalab.org.cn/Math23K)               | 中文数学问题                                          |
 | [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源的对话集                                       |
+
+
+<p align="center"> <img src="img/data_comparison.png" /> </p>
+
+
 
 
 ## ⏬ 模型部署
@@ -53,7 +58,7 @@ Meta官方的下载链接：https://huggingface.co/meta-llama
 |  预训练 | taotie1/literary-alpaca2-13B |     meta-llama/Llama-2-13b-hf     |[模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B) |
 |  LoRA | taotie1/literary-alpaca2-13B-lora |      taotie1/literary-alpaca2-13B     |[模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B-lora) |
 #### 基于LiteraryAlpaca2的中文微调模型Chat
-|  类别           | 🤗模型名称             | 下载地址                                                  |
+|  类别           | 🤗模型名称        | 下载地址                                                 |
 | --------------- | ---------------    |  ------------------------------------------------------------ |
 |  Chat  |  taotie1/literary-alpaca2-13B-chat  | [模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B-chat) |
 
@@ -91,7 +96,9 @@ print(text)
 ```
 python examples/chat_gradio.py --model_name_or_path FlagAlpha/Atom-7B
 ```
+## 词表训练
 
+[数据处理代码](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer)
 
 ## 预训练
 本仓库训练代码使用[DeepSpeed](https://github.com/microsoft/DeepSpeed)加速
@@ -121,10 +128,12 @@ LoRA微调脚本见：[train/sft/finetune_lora.sh](https://github.com/FlagAlpha/
 
 
 
-## 参考相关论文
-* [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971)
+## 参考论文
+
 * [Llama 2: Open Foundation and Fine-Tuned Chat Models](https://arxiv.org/abs/2307.09288)
 * [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
+* [QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314)
+* [Efficient and Effective Text Encoding for Chinese LLaMA and Alpaca](https://arxiv.org/abs/2304.08177)
 
 <p align="center" width="100%">
 <img src="https://starchart.cc/kingTLE/literary-alpaca2.svg" alt="Star History" style="width: 100%; display: block; margin: auto;">
