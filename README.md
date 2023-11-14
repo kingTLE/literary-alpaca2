@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/kingTLE/kingTLE/blob/main/header.png"/> </p>
+<p align="center"> <img src="https://github.com/kingTLE/kingTLE/blob/main/header.png" width=80%/> </p>
 
 <h1 align="center">
   Literary-Alpaca2
