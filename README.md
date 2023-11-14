@@ -42,7 +42,7 @@
 | [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源的对话集                                       |
 
 
-<p align="center"> <img src="img/data_comparison.png" /> </p>
+<p align="center"> <img src="img/data_comparison.png" width=80%/> </p>
 
 
 
