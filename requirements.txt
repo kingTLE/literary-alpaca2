@@ -1,0 +1,7 @@
+peft
+transformers==4.31.0
+sentencepiece
+bitsandbytes==0.41.0
+datasets
+deepspeed
+gradio
