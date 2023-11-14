@@ -17,8 +17,7 @@
   - [模型下载](#模型下载)
     - [基于Llama2的中文预训练模型](#基于Llama2的中文预训练模型)
     - [基于LiteraryAlpaca2的中文微调模型Chat](#基于LiteraryAlpaca2的中文微调模型Chat)
-  - [模型调用代码示例](#模型调用代码示例)
-  - [Gradio快速搭建问答平台](#gradio快速搭建问答平台)
+  - [模型调用示例](#模型调用示例)
 - [词表训练](#词表训练)
 - [预训练](#预训练)
 - [微调](#微调)
@@ -66,8 +65,8 @@
 |  Chat  |  taotie1/literary-alpaca2-13B-chat  | [模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B-chat) |
 
 
-### 模型调用代码示例
-根据[requirements.txt](https://github.com/kingTLE/literary-alpaca2/blob/main/requirements.txt)安装环境依赖
+### 模型调用示例
+根据[requirements.txt](https://github.com/kingTLE/literary-alpaca2/blob/main/requirements.txt)安装环境依赖，torch请根据自己的设备选择版本安装。
 ```python
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -75,7 +74,7 @@ model = AutoModelForCausalLM.from_pretrained('taotie1/literary-alpaca2-13B-chat'
 model =model.eval()
 tokenizer = AutoTokenizer.from_pretrained('taotie1/literary-alpaca2-13B-chat',use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
-input_ids = tokenizer(['<s>Human: 介绍一下中国\n</s><s>Assistant: '], return_tensors="pt",add_special_tokens=False).input_ids.to('cuda')        
+input_ids = tokenizer(['<s>Human: 什么是计算机\n</s><s>Assistant: '], return_tensors="pt",add_special_tokens=False).input_ids.to('cuda')        
 generate_input = {
     "input_ids":input_ids,
     "max_new_tokens":512,
@@ -93,12 +92,6 @@ text = tokenizer.decode(generate_ids[0])
 print(text)
 ```
 
-### Gradio快速搭建问答平台
-
-基于gradio搭建的问答界面，实现了流式的输出，将下面代码复制到控制台运行，以下代码以Atom-7B模型为例，<font color="#006600">不同模型只需修改一下代码里的模型名称就好了😊</font><br/>
-```
-python examples/chat_gradio.py --model_name_or_path FlagAlpha/Atom-7B
-```
 ## 词表训练
 
 先对你的训练数据进行[命名清洗](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/Batch_Rename.py)【可选】</br></br>
