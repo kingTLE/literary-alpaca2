@@ -10,8 +10,8 @@
 
 
 ## 🗂️ 使用指南
-- [🔥 项目介绍](#-社区介绍llama中文社区)
-- [📝 中文数据](#-中文数据)
+- [🔥 项目介绍](#-项目介绍)
+- [📝 训练数据](#-训练数据)
 - [⏬ 模型部署](#-模型部署)
   - [模型下载](#模型下载)
     - [Meta官方Llama2模型](#meta官方llama2模型)
@@ -29,8 +29,6 @@
   - [Step4: 加载微调模型](#step4-加载微调模型)
     - [LoRA微调](#lora微调-1)
     - [全量参数微调](#全量参数微调-1)
-- [🍄 模型量化](#-模型量化)
-- [🥇 模型评测](#-模型评测)
   - [LangChain](#langchain)
   - [Llama相关论文](#llama相关论文)
   - [Llama2的评测结果](#llama2的评测结果)
@@ -39,37 +37,26 @@
 
 ## 🔥 项目介绍
 
-欢迎来到Llama中文社区！我们是一个专注于Llama模型在中文方面的优化和上层建设的高级技术社区。
-**\*基于大规模中文数据，从预训练开始对Llama2模型进行中文能力的持续迭代升级\***。
-我们热忱欢迎对大模型LLM充满热情的开发者和研究者加入我们的行列。
 
-本仓库中的代码示例主要是基于Hugging Face版本参数进行调用。
+本仓库将展示如何从词表开始构建自己的词表与使用基座模型预训练和微调模型
+仓库中的代码示例主要是基于Llama2的Hugging Face版本进行训练。
 
 
-
-
-
-
-## 📝 中文数据
+## 📝 训练数据
 
 我们通过以下数据来优化Llama2的中文能力:
 
 | 类型                                                       | 描述                                                         |
 | ---------------------------------------------------------- | ------------------------------------------------------------ |
-| 网络数据                                                   | 互联网上公开的网络数据，挑选出去重后的高质量中文数据，涉及到百科、书籍、博客、新闻、公告、小说等高质量长文本数据。 |
+| 网络小说数据                                                   | 互联网上公开的网络小说，高质量长文本数据。 |
 | [Wikipedia](https://github.com/goldsmith/Wikipedia)        | 中文Wikipedia的数据                                          |
 | [悟道](https://github.com/BAAI-WuDao/Model)                | 中文悟道开源的200G数据                                       |
-| [Clue](https://github.com/CLUEbenchmark/CLUEDatasetSearch) | Clue开放的中文预训练数据，进行清洗后的高质量中文长文本数据   |
-| 竞赛数据集                                                 | 近年来中文自然语言处理多任务竞赛数据集，约150个              |
-| [MNBVC](https://github.com/esbatmop/MNBVC)                 | MNBVC 中清洗出来的部分数据集                                 |
-
-**希望大家如果有较高质量的数据集能够提供给我们，不胜感激!💕💕**
-
+                            |
 
 
 ## ⏬ 模型部署
 
-Meta在🤗Hugging Face上提供了所有模型的下载链接：https://huggingface.co/meta-llama
+Meta官方的下载链接：https://huggingface.co/meta-llama
 
 本项目模型下载链接：https://huggingface.co/taotie1
 
@@ -217,49 +204,9 @@ print(text)
 ```
 
 
-
-## 🍄 模型量化
-我们对中文微调的模型参数进行了量化，方便以更少的计算资源运行。目前已经在[Hugging Face](https://huggingface.co/FlagAlpha)上传了13B中文微调模型[FlagAlpha/Llama2-Chinese-13b-Chat](https://huggingface.co/FlagAlpha/Llama2-Chinese-13b-Chat)的4bit压缩版本[FlagAlpha/Llama2-Chinese-13b-Chat-4bit](https://huggingface.co/FlagAlpha/Llama2-Chinese-13b-Chat-4bit)，具体调用方式如下：
-```python
-from transformers import AutoTokenizer
-from auto_gptq import AutoGPTQForCausalLM
-model = AutoGPTQForCausalLM.from_quantized('FlagAlpha/Llama2-Chinese-13b-Chat-4bit', device="cuda:0")
-tokenizer = AutoTokenizer.from_pretrained('FlagAlpha/Llama2-Chinese-13b-Chat-4bit',use_fast=False)
-input_ids = tokenizer(['<s>Human: 怎么登上火星\n</s><s>Assistant: '], return_tensors="pt",add_special_tokens=False).input_ids.to('cuda')        
-generate_input = {
-    "input_ids":input_ids,
-    "max_new_tokens":512,
-    "do_sample":True,
-    "top_k":50,
-    "top_p":0.95,
-    "temperature":0.3,
-    "repetition_penalty":1.3,
-    "eos_token_id":tokenizer.eos_token_id,
-    "bos_token_id":tokenizer.bos_token_id,
-    "pad_token_id":tokenizer.pad_token_id
-}
-generate_ids  = model.generate(**generate_input)
-text = tokenizer.decode(generate_ids[0])
-print(text)
-```
-
-
-## 🥇 模型评测
-
-测试中使用的Prompt如下，例如对于问题“列出5种可以改善睡眠质量的方法”：
-```
-
-```
-
-通过测试我们发现，Meta原始的Llama2 Chat模型对于中文问答的对齐效果一般，大部分情况下都不能给出中文回答，或者是中英文混杂的形式。因此，基于中文数据对Llama2模型进行训练和微调十分必要，我们的中文版Llama2模型也已经在训练中，近期将对社区开放。
-
-
-
 ### 参考相关论文
 * [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971)
 * [Llama 2: Open Foundation and Fine-Tuned Chat Models](https://arxiv.org/abs/2307.09288)
-
-
 
 
 <p align="center" width="100%">
