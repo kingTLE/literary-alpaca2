@@ -39,20 +39,22 @@
 | ---------------------------------------------------------- | ------------------------------------------------------------ |
 | 网络小说                                                   | 高质量长文本数据 |
 | [Math23K](https://opendatalab.org.cn/Math23K)               | 中文数学问题                                          |
-| [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源的对话集                                       |
+| [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源对话集                                       |
 
-
+</br></br>
+词表与预训练阶段数据对比图：
 <p align="center"> <img src="img/data_comparison.png" width=80%/> </p>
-
-
-
 
 ## ⏬ 模型部署
 
-Meta官方的下载链接：https://huggingface.co/meta-llama
-中文预训练模型、LoRA参数、chat模型都已上传至[Hugging Face](https://huggingface.co/taotie1)，目前只有13B模型。
+<p>Meta官方的下载链接：https://huggingface.co/meta-llama</p>
+
+中文预训练模型、LoRA参数、chat模型都已上传至[Hugging Face](https://huggingface.co/taotie1) 目前只有13B模型。
+
 ### 模型下载
+
 #### 基于Llama2的中文预训练模型
+
 |  类别        | 🤗模型名称   | 基座模型          |   下载地址          |
 |  ----------  | ---------- |  ----------------- | ------------------- |
 |  预训练 | taotie1/literary-alpaca2-13B |     meta-llama/Llama-2-13b-hf     |[模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B) |
@@ -64,7 +66,7 @@ Meta官方的下载链接：https://huggingface.co/meta-llama
 
 
 ### 模型调用代码示例
-根据[requirements.txt](https://github.com/kingTLE/literary-alpaca2/blob/main/requirements.txt)安装对应的环境依赖
+根据[requirements.txt](https://github.com/kingTLE/literary-alpaca2/blob/main/requirements.txt)安装环境依赖
 ```python
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -98,7 +100,21 @@ python examples/chat_gradio.py --model_name_or_path FlagAlpha/Atom-7B
 ```
 ## 词表训练
 
-[数据处理代码](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer)
+先对你的训练数据进行[命名清洗](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/Batch_Rename.py)【可选】</br></br>
+选择运行[随机清洗代码](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/random_sample.py)或[全部清洗](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/clear.py)，在[ill_ocr_regex.txt](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/ill_ocr_regex.txt)中可以自定义你的正则。
+
+运行[full_sample_extraction.py](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/full_sample_extraction.py)把数据合并成一个文件。
+
+参照[train-chinese-tokenizer.ipynb](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/train-chinese-tokenizer.ipynb)进行词表训练，可以根据自己的需求修改代码。
+训练完成后把你的词表放入my-tokenizer目录下。按照下面方式和原llama2的tokenizer合并
+```
+bash运行
+'
+Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+python incorporation.py
+'
+```
+运行[text.py](https://github.com/kingTLE/literary-alpaca2/tree/main/chinese-tokenizer/text.py)进行测试词表效果
 
 ## 预训练
 本仓库训练代码使用[DeepSpeed](https://github.com/microsoft/DeepSpeed)加速
