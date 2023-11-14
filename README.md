@@ -1,7 +1,8 @@
+<p align="center"> <img src="https://github.com/kingTLE/kingTLE/blob/main/header.png"/> </p>
+
 <h1 align="center">
   Literary-Alpaca2
 </h1>
-
 <p align="center">
   <font face="黑体" color=orange size="6"> 从词表到微调这就是你需要的一切 </font>
 </p>
