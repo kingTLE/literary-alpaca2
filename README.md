@@ -14,24 +14,15 @@
 - [📝 训练数据](#-训练数据)
 - [⏬ 模型部署](#-模型部署)
   - [模型下载](#模型下载)
-    - [Meta官方Llama2模型](#meta官方llama2模型)
-    - [基于Llama2的中文微调模型](#基于llama2的中文微调模型)
-    - [基于Llama2的中文预训练模型Atom](#基于llama2的中文预训练模型atom)
+    - [基于Llama2的中文预训练模型](#基于Llama2的中文预训练模型)
+    - [基于LiteraryAlpaca2的中文微调模型Chat](#基于LiteraryAlpaca2的中文微调模型Chat)
   - [模型调用代码示例](#模型调用代码示例)
   - [Gradio快速搭建问答平台](#gradio快速搭建问答平台)
-- [🤖 模型预训练](#-模型预训练)
-- [💡 模型微调](#-模型微调)
-  - [Step1: 环境准备](#step1-环境准备)
-  - [Step2: 数据准备](#step2-数据准备)
-  - [Step3: 微调脚本](#step3-微调脚本)
-    - [LoRA微调](#lora微调)
-    - [全量参数微调](#全量参数微调)
-  - [Step4: 加载微调模型](#step4-加载微调模型)
-    - [LoRA微调](#lora微调-1)
-    - [全量参数微调](#全量参数微调-1)
-  - [LangChain](#langchain)
-  - [Llama相关论文](#llama相关论文)
-  - [Llama2的评测结果](#llama2的评测结果)
+- [预训练](#-预训练)
+- [微调](#-微调)
+  - [数据准备](#数据准备)
+  - [微调脚本](#微调脚本)
+- [Llama相关论文](#llama相关论文)
 
 
 
@@ -44,53 +35,37 @@
 
 ## 📝 训练数据
 
-我们通过以下数据来优化Llama2的中文能力:
-
 | 类型                                                       | 描述                                                         |
 | ---------------------------------------------------------- | ------------------------------------------------------------ |
-| 网络小说数据                                                   | 互联网上公开的网络小说，高质量长文本数据。 |
-| [Wikipedia](https://github.com/goldsmith/Wikipedia)        | 中文Wikipedia的数据                                          |
-| [悟道](https://github.com/BAAI-WuDao/Model)                | 中文悟道开源的200G数据                                       |
-                            |
+| 网络小说                                                   | 高质量长文本数据 |
+| [Math23K](https://opendatalab.org.cn/Math23K)               | 中文数学问题                                          |
+| [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源的对话集                                       |
 
 
 ## ⏬ 模型部署
 
 Meta官方的下载链接：https://huggingface.co/meta-llama
-
-本项目模型下载链接：https://huggingface.co/taotie1
-
+中文预训练模型、LoRA参数、chat模型都已上传至[Hugging Face](https://huggingface.co/taotie1)，目前只有13B模型。
 ### 模型下载
-
-
-#### 基于Llama2的中文微调模型
-
-我们基于中文指令数据集对Llama2-Chat模型进行了微调，使得Llama2模型有着更强的中文对话能力。LoRA参数以及与基础模型合并的参数均已上传至[Hugging Face](https://huggingface.co/FlagAlpha)，目前包含7B和13B的模型。
-
-|  类别  | 模型名称   | 🤗模型加载名称             | 基础模型版本 |    下载地址                                                     |
-|  ----------  | ---------- | ------------- |  ----------------- | ------------------- |
-|  合并参数 | Llama2-Chinese-13b-Chat | FlagAlpha/Llama2-Chinese-13b-Chat|     meta-llama/Llama-2-13b-chat-hf     |[模型下载](https://huggingface.co/FlagAlpha/Llama2-Chinese-13b-Chat) |
-|  LoRA参数 | Llama2-Chinese-13b-Chat-LoRA | FlagAlpha/Llama2-Chinese-13b-Chat-LoRA |     meta-llama/Llama-2-13b-chat-hf     |[模型下载](https://huggingface.co/FlagAlpha/Llama2-Chinese-13b-Chat-LoRA) |
-
-
-#### 基于Llama2的中文预训练模型Atom
-
-社区提供预训练版本Atom-7B和基于Atom-7B进行对话微调的模型参数供开放下载，模型参数会持续不断更新，关于模型的进展详见社区官网[llama.family](https://llama.family)。
-
-|  类别  | 模型名称        | 🤗模型加载名称                  | 下载地址                                                     |
-| --------------- | --------------- | ------------------------------ | ------------------------------------------------------------ |
-|  预训练  | Atom-7B  | FlagAlpha/Atom-7B  | [模型下载](https://huggingface.co/FlagAlpha/Atom-7B) |
-|  Chat  | Atom-7B-Chat  | FlagAlpha/Atom-7B-Chat  | [模型下载](https://huggingface.co/FlagAlpha/Atom-7B-Chat) |
+#### 基于Llama2的中文预训练模型
+|  类别        | 🤗模型名称   | 基座模型          |   下载地址          |
+|  ----------  | ---------- |  ----------------- | ------------------- |
+|  预训练 | taotie1/literary-alpaca2-13B |     meta-llama/Llama-2-13b-hf     |[模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B) |
+|  LoRA | taotie1/literary-alpaca2-13B-lora |      taotie1/literary-alpaca2-13B     |[模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B-lora) |
+#### 基于LiteraryAlpaca2的中文微调模型Chat
+|  类别           | 🤗模型名称             | 下载地址                                                  |
+| --------------- | ---------------    |  ------------------------------------------------------------ |
+|  Chat  |  taotie1/literary-alpaca2-13B-chat  | [模型下载](https://huggingface.co/taotie1/literary-alpaca2-13B-chat) |
 
 
 ### 模型调用代码示例
-
+根据[requirements.txt](https://github.com/kingTLE/literary-alpaca2/blob/main/requirements.txt)安装对应的环境依赖
 ```python
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-model = AutoModelForCausalLM.from_pretrained('FlagAlpha/Atom-7B',device_map='auto',torch_dtype=torch.float16,load_in_8bit=True)
+model = AutoModelForCausalLM.from_pretrained('taotie1/literary-alpaca2-13B-chat',device_map='auto',torch_dtype=torch.float16,load_in_8bit=True)
 model =model.eval()
-tokenizer = AutoTokenizer.from_pretrained('FlagAlpha/Atom-7B',use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained('taotie1/literary-alpaca2-13B-chat',use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
 input_ids = tokenizer(['<s>Human: 介绍一下中国\n</s><s>Assistant: '], return_tensors="pt",add_special_tokens=False).input_ids.to('cuda')        
 generate_input = {
@@ -117,32 +92,16 @@ print(text)
 python examples/chat_gradio.py --model_name_or_path FlagAlpha/Atom-7B
 ```
 
-## 🤖 模型预训练
-虽然Llama2的预训练数据相对于第一代LLaMA扩大了一倍，但是中文预训练数据的比例依然非常少，仅占0.13%，这也导致了原始Llama2的中文能力较弱。为了能够提升模型的中文能力，可以采用微调和预训练两种路径，其中：
-- 微调需要的算力资源少，能够快速实现一个中文Llama的雏形。但缺点也显而易见，只能激发基座模型已有的中文能力，由于Llama2的中文训练数据本身较少，所以能够激发的能力也有限，治标不治本。
 
-- 基于大规模中文语料进行预训练，成本高，不仅需要大规模高质量的中文数据，也需要大规模的算力资源。但是优点也显而易见，就是能从模型底层优化中文能力，真正达到治本的效果，从内核为大模型注入强大的中文能力。
-
-我们为社区提供了Llama模型的预训练代码，以及[中文测试语料](https://github.com/FlagAlpha/Llama2-Chinese/tree/main/data)，更多数据可以参考[中文语料](#-中文数据)。具体代码和配置如下：
+## 预训练
+本仓库训练代码使用[DeepSpeed](https://github.com/microsoft/DeepSpeed)加速
+- 模型预训练脚本：[train/GPU/pretrain-peft1.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)
+- 预训练实现代码：[train/GPU/pretrain-peft1.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.py)
 
 
+## 微调
 
-- 模型预训练脚本：[train/pretrain/pretrain.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/pretrain/pretrain.sh)
-- 预训练实现代码：[train/pretrain/pretrain_clm.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/pretrain/pretrain_clm.py)
-- [DeepSpeed](https://github.com/microsoft/DeepSpeed)加速：
-  - 对于单卡训练，可以采用ZeRO-2的方式，参数配置见 [train/pretrain/ds_config_zero2.json](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/pretrain/ds_config_zero2.json)
-  - 对于多卡训练，可以采用ZeRO-3的方式，参数配置见 [train/pretrain/ds_config_zero3.json](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/pretrain/ds_config_zero3.json)
-- 训练效果度量指标：[train/pretrain/accuracy.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/pretrain/accuracy.py)
-
-## 💡 模型微调
-
-本仓库中同时提供了LoRA微调和全量参数微调代码，关于LoRA的详细介绍可以参考论文“[LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)”以及微软Github仓库[LoRA](https://github.com/microsoft/LoRA)。
-
-### Step1: 环境准备
-
-根据[requirements.txt](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/requirements.txt)安装对应的环境依赖。
-
-### Step2: 数据准备
+### 数据准备
 在data目录下提供了一份用于模型sft的数据样例：
 - 训练数据：[data/train_sft.csv](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/data/train_sft.csv)
 - 验证数据：[data/dev_sft.csv](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/data/dev_sft.csv)
@@ -155,59 +114,17 @@ python examples/chat_gradio.py --model_name_or_path FlagAlpha/Atom-7B
 ```
 <s>Human: 用一句话描述地球为什么是独一无二的。</s><s>Assistant: 因为地球是目前为止唯一已知存在生命的行星。</s>
 ```
+### 微调脚本
 
-### Step3: 微调脚本
-
-#### LoRA微调
 LoRA微调脚本见：[train/sft/finetune_lora.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_lora.sh)，关于LoRA微调的具体实现代码见[train/sft/finetune_clm_lora.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_clm_lora.py)，单机多卡的微调可以通过修改脚本中的`--include localhost:0`来实现。
 
-#### 全量参数微调
-全量参数微调脚本见：[train/sft/finetune.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune.sh)，关于全量参数微调的具体实现代码见[train/sft/finetune_clm.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_clm.py)。
 
 
-### Step4: 加载微调模型
 
-#### LoRA微调
-基于LoRA微调的模型参数见：[基于Llama2的中文微调模型](#基于llama2的中文微调模型)，LoRA参数需要和基础模型参数结合使用。
-
-通过[PEFT](https://github.com/huggingface/peft)加载预训练模型参数和微调模型参数，以下示例代码中，base_model_name_or_path为预训练模型参数保存路径，finetune_model_path为微调模型参数保存路径。
-
-```python
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from peft import PeftModel,PeftConfig
-# 例如: finetune_model_path='FlagAlpha/Llama2-Chinese-7b-Chat-LoRA'
-finetune_model_path=''  
-config = PeftConfig.from_pretrained(finetune_model_path)
-# 例如: base_model_name_or_path='meta-llama/Llama-2-7b-chat'
-tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path,use_fast=False)
-tokenizer.pad_token = tokenizer.eos_token
-model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path,device_map='auto',torch_dtype=torch.float16,load_in_8bit=True)
-model = PeftModel.from_pretrained(model, finetune_model_path, device_map={"": 0})
-model =model.eval()
-input_ids = tokenizer(['<s>Human: 介绍一下北京\n</s><s>Assistant: '], return_tensors="pt",add_special_tokens=False).input_ids.to('cuda')        
-generate_input = {
-    "input_ids":input_ids,
-    "max_new_tokens":512,
-    "do_sample":True,
-    "top_k":50,
-    "top_p":0.95,
-    "temperature":0.3,
-    "repetition_penalty":1.3,
-    "eos_token_id":tokenizer.eos_token_id,
-    "bos_token_id":tokenizer.bos_token_id,
-    "pad_token_id":tokenizer.pad_token_id
-}
-generate_ids  = model.generate(**generate_input)
-text = tokenizer.decode(generate_ids[0])
-print(text)
-```
-
-
-### 参考相关论文
+## 参考相关论文
 * [LLaMA: Open and Efficient Foundation Language Models](https://arxiv.org/abs/2302.13971)
 * [Llama 2: Open Foundation and Fine-Tuned Chat Models](https://arxiv.org/abs/2307.09288)
-
+* [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
 
 <p align="center" width="100%">
 <img src="https://starchart.cc/kingTLE/literary-alpaca2.svg" alt="Star History" style="width: 100%; display: block; margin: auto;">
