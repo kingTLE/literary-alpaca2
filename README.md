@@ -112,9 +112,56 @@ python incorporation.py
 
 ## 预训练
 本仓库训练代码使用[DeepSpeed](https://github.com/microsoft/DeepSpeed)加速
-- 模型预训练脚本：[train/GPU/pretrain-peft1.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)
-- 预训练实现代码：[train/GPU/pretrain-peft1.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.py)
+- 请在[预训练脚本 pretrain-peft1.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)中修改你相应的output_model、dataset、pretrained_model_name、tokenizer_name的路径,如果需要上传到你的Hugging Face仓库，请把    --push_to_hub 设置为true并在  --hub_token参数填入你的token，并修改    --hub_model_id
+- 多机多卡请修改--nnodes 和 --nproc_per_node 参数
+```
+如两机8卡：torchrun --nnodes 2 --nproc_per_node 8
+```
 
+- 你可以删除[预训练代码 pretrain-peft1.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.py)中的下面内容实现全参预训练
+```
+    for name, param in model.named_parameters():
+        if "model.embed_tokens" not in name:
+            param.requires_grad = False
+        else:
+            param.requires_grad = True
+```
+- 如果难以收敛或内存不足请使用[预训练脚本2 pretrain-peft2.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)，这将允许你训练量化模型，你可以通过调整下面参数适应你的需求
+```
+      --load_in_kbits 设置量化
+      --bf16 | --fp16 启用bf16需要gpu硬件支持
+如果出现OOM请在deepspeed_config_peft2.json配置中添加：
+    "zero_optimization": {
+        "stage": 3,
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "offload_param": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "overlap_comm": true,
+        "contiguous_gradients": true,
+        "sub_group_size": 1e9,
+        "reduce_bucket_size": "auto",
+        "stage3_prefetch_bucket_size": "auto",
+        "stage3_param_persistence_threshold": "auto",
+        "stage3_max_live_parameters": 1e9,
+        "stage3_max_reuse_distance": 1e9,
+        "stage3_gather_16bit_weights_on_model_save": true
+    },
+```
+-使用[预训练脚本2 pretrain-peft2.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)会生成lora参数，可以运行修改自Chinese-LLaMA-Alpaca-2的[merge_lora_low_mem.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/merge_lora_low_mem.py)脚本进行合并
+
+```
+python merge_lora_low_mem.py\
+    --base_model /root/LiteraryAlpaca2 \
+    --lora_model /root/autodl-tmp/LiteraryAlpaca2-lora \
+    --output_type huggingface \
+    --output_dir /root/autodl-tmp/LiteraryAlpaca2
+
+```
 
 ## 微调
 
