@@ -7,6 +7,8 @@ export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32
 
 torchrun --nnodes 1 --nproc_per_node 1 /root/autodl-fs/train/pretrain-peft1.py \
     --deepspeed /root/autodl-fs/train/deepspeed_config_peft1.json \
+    --pretrained_model_name /root/autodl-tmp/Llama-2-13b-hf \
+    --tokenizer_name /root/autodl-fs/train/incorporation_hf2 \
     --train_files /root/autodl-fs/train/random_data/Pre_training_random_data/*/*/*.txt \
                   /root/autodl-fs/train/random_data/Pre_training_random_data/*/*/*/*  \
     --output_dir ${output_model} \
