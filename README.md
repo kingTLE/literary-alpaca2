@@ -128,7 +128,7 @@ python incorporation.py
 ```
 - 如果难以收敛或内存不足请使用[预训练脚本2 pretrain-peft2.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)，这将允许你训练量化模型，你可以通过调整下面参数适应你的需求
 ```
-      --load_in_kbits 设置量化
+      --load_in_kbits 设置量化,不为4或8则不启用量化
       --bf16 | --fp16 启用bf16需要gpu硬件支持
 如果出现OOM请在deepspeed_config_peft2.json配置中添加：
     "zero_optimization": {
@@ -180,7 +180,7 @@ python merge_lora_low_mem.py\
 ```
 ### 微调脚本
 
-LoRA微调脚本见：[train/sft/finetune_lora.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_lora.sh)，关于LoRA微调的具体实现代码见[train/sft/finetune_clm_lora.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_clm_lora.py)，单机多卡的微调可以通过修改脚本中的`--include localhost:0`来实现。
+LoRA微调脚本见：[train/sft/finetune_lora.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_lora.sh)，关于LoRA微调的具体实现代码见[train/sft/finetune_clm_lora.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_clm_lora.py)
 
 
 
