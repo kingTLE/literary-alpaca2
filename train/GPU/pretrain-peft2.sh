@@ -6,8 +6,8 @@ dataset=/root/autodl-fs/train1/working/dataset_cache
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32
 torchrun --nnodes 1 --nproc_per_node 1 /root/autodl-fs/train/pretrain-peft2.py \
     --deepspeed /root/autodl-fs/train/deepspeed_config_peft2.json \
-    --pretrained_model_name /root/autodl-tmp/Llama-2-13b-hf \
-    --tokenizer_name /root/autodl-fs/train/incorporation_hf2 \
+    --pretrained_model_name /root/LiteraryAlpaca2 \
+    --tokenizer_name /root/LiteraryAlpaca2 \
     --train_files dataset/* \
     --output_dir ${output_model} \
     --per_device_train_batch_size 1 \
@@ -21,13 +21,11 @@ torchrun --nnodes 1 --nproc_per_node 1 /root/autodl-fs/train/pretrain-peft2.py \
     --use_fast_tokenizer false\
     --data_cache_dir ${dataset} \
     --num_train_epochs 1 \
-    --warmup_ratio 0.05 \
-    --weight_decay 0.01 \
     --logging_dir '/root/tf-logs' \
     --logging_strategy steps \
     --logging_steps 1 \
     --save_strategy steps \
-    --save_steps 100 \
+    --save_steps 1000 \
     --save_total_limit 5 \
     --seed 42 \
     --disable_tqdm false \
