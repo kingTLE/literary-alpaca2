@@ -152,7 +152,7 @@ python incorporation.py
         "stage3_gather_16bit_weights_on_model_save": true
     },
 ```
--使用[预训练脚本2 pretrain-peft2.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)会生成lora参数，可以运行修改自Chinese-LLaMA-Alpaca-2的[merge_lora_low_mem.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/merge_lora_low_mem.py)脚本进行合并
+-使用[预训练脚本2 pretrain-peft2.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/train/GPU/pretrain-peft1.sh)会生成lora参数，可以运行修改自[Chinese-LLaMA-Alpaca-2](https://github.com/ymcui/Chinese-LLaMA-Alpaca-2/tree/main)的[merge_lora_low_mem.py](https://github.com/kingTLE/literary-alpaca2/tree/main/train/merge_lora_low_mem.py)脚本进行合并
 
 ```
 python merge_lora_low_mem.py\
