@@ -1,11 +1,3 @@
-"""
-Usage: 
-python merge_llama2_with_chinese_lora_low_mem.py \
-    --base_model path/to/llama2-hf-model \
-    --lora_model path/to/chinese-llama2-or-alpaca2-lora \
-    --output_type [huggingface|pth|] \
-    --output_dir path/to/output-dir
-"""
 import argparse
 import json
 import os
@@ -134,7 +126,7 @@ def save_shards(model_sd, num_shards: int, prefix="", verbose=False):
                         new_state_dict[new_k] = v
 
             os.makedirs(output_dir, exist_ok=True)
-            print(f"Saving shard 1 of {num_shards} into {output_dir}/{prefix}consolidated.00.pth")
+            print(f"保存 1 - {num_shards} 到 {output_dir}/{prefix}consolidated.00.pth")
             torch.save(new_state_dict, output_dir + f"/{prefix}consolidated.00.pth")
         else:
             new_state_dicts = [dict() for _ in range(num_shards)]
@@ -191,7 +183,7 @@ def save_shards(model_sd, num_shards: int, prefix="", verbose=False):
 
             os.makedirs(output_dir, exist_ok=True)
             for i,new_state_dict in enumerate(new_state_dicts):
-                print(f"Saving shard {i+1} of {num_shards} into {output_dir}/{prefix}consolidated.0{i}.pth")
+                print(f"保存 {i+1} - {num_shards} 到 {output_dir}/{prefix}consolidated.0{i}.pth")
                 torch.save(new_state_dict, output_dir + f"/{prefix}consolidated.0{i}.pth")
 
 # 合并分片并保存
@@ -200,16 +192,16 @@ def merge_shards(output_dir, num_shards: int):
 
     for i in range(num_shards):
         shards_filenames = sorted([f for f in ckpt_filenames if re.match(f'L(\d+)-consolidated.0{i}.pth',f)])
-        print(f"Loading {shards_filenames} ...")
+        print(f"加载 {shards_filenames} ...")
         shards_dicts = [torch.load(os.path.join(output_dir,fn)) for fn in shards_filenames]
         shards_merged = {}
         for d in shards_dicts:
             shards_merged |= d
 
-        print(f"Saving the merged shard to " + os.path.join(output_dir, f"consolidated.0{i}.pth"))
+        print(f"将合并后保存到 " + os.path.join(output_dir, f"consolidated.0{i}.pth"))
         torch.save(shards_merged, os.path.join(output_dir, f"consolidated.0{i}.pth"))
 
-        print("Cleaning up...")
+        print("清理中...")
         del shards_merged
         for d in shards_dicts:
             del d
@@ -234,9 +226,9 @@ if __name__=='__main__':
     # 初始化一个存储模型和Tokenizer信息的列表
     tokenizers_and_loras = []
     # 加载LoRA模型的Tokenizer和配置
-    print(f"Loading {lora_model_path}")
+    print(f"加载 {lora_model_path}")
     if not os.path.exists(lora_model_path):
-        print("Cannot find lora model on the disk. Downloading lora model from hub...")
+        print("无法在磁盘上找到 lora 模型。从hub下载 lora 模型...")
         lora_model_path = snapshot_download(repo_id=lora_model_path)
     tokenizer = LlamaTokenizer.from_pretrained(lora_model_path, legacy=True)
     lora_config = peft.LoraConfig.from_pretrained(lora_model_path)
@@ -245,7 +237,7 @@ if __name__=='__main__':
     if 'base_model.model.model.embed_tokens.weight' in lora_state_dict:
         lora_vocab_size = lora_state_dict['base_model.model.model.embed_tokens.weight'].shape[0]
         assert lora_vocab_size==len(tokenizer), \
-        (f"The vocab size of the tokenizer {len(tokenizer)} does not match the vocab size of the LoRA weight {lora_vocab_size}!\n")
+        (f"tokenizer词汇量大小 {len(tokenizer)} 与LoRA 权重的词汇量大小 {lora_vocab_size}不匹配!\n")
     # 将Tokenizer和LoRA配置、权重等信息添加到列表中
     tokenizers_and_loras.append(
         {
@@ -267,7 +259,7 @@ if __name__=='__main__':
     model_size = None
     total_size = 0
     for index, filename in enumerate(ckpt_filenames):
-        print(f"Loading ckpt {filename}")
+        print(f"加载检查点 {filename}")
         state_dict = torch.load(os.path.join(base_model_path,filename), map_location='cpu')
         # 如果是第一个检查点文件，获取嵌入尺寸和模型大小等信息
         if index == 0:
@@ -283,7 +275,7 @@ if __name__=='__main__':
                 dims_per_head = dim // n_heads
                 base = 10000.0
                 inv_freq = 1.0 / (base ** (torch.arange(0, dims_per_head, 2).float() / dims_per_head))
-        print("Merging...")
+        print("合并中...")
         for k in state_dict:
             for tl_idx, t_and_l in enumerate(tokenizers_and_loras):
                 saved_key = 'base_model.model.'+k
@@ -297,7 +289,7 @@ if __name__=='__main__':
                 if lora_key_A in t_and_l['state_dict']:
                     lora_key_B = lora_key_A.replace('lora_A.weight','lora_B.weight')
                     if args.verbose:
-                        print(f"merging {lora_key_A} and lora_B.weight form {tl_idx}-th LoRA weight to {k}")
+                        print(f"将{lora_key_A}和 lora_B.weight 合并，形成{tl_idx}-th LoRA weight 至 {k}")
                     state_dict[k] += (
                         transpose(
                             t_and_l['state_dict'][lora_key_B].float()
@@ -307,10 +299,10 @@ if __name__=='__main__':
             total_size += weight_size
         # 根据输出类型保存权重
         if output_type=='huggingface':
-            print(f"Saving ckpt {filename} to {output_dir} in HF format...")
+            print(f"以 HF 格式将 ckpt {filename} 保存到 {output_dir} 中...")
             torch.save(state_dict,os.path.join(output_dir, filename))
         elif output_type=='pth':
-            print(f"Converting to pth format...")
+            print(f"转换为 pth 格式...")
             save_shards(model_sd=state_dict, num_shards=num_shards,prefix=f"L{index+1}-", verbose=args.verbose)
         # 释放内存并强制进行垃圾收集
         del state_dict
@@ -321,7 +313,7 @@ if __name__=='__main__':
     # 如果输出类型是'pth'，保存参数信息
     if output_type == 'pth':
         with open(output_dir + "/params.json", "w") as f:
-            print(f"Saving params.json into {output_dir}/params.json")
+            print(f"保存 params.json 到{output_dir}/params.json")
             json.dump(params, f)
         # 合并分片
         merge_shards(output_dir, num_shards=num_shards)
@@ -330,11 +322,11 @@ if __name__=='__main__':
         configs = ('config.json', 'generation_config.json', 'pytorch_model.bin.index.json')
         for config in configs:
             if os.path.exists(os.path.join(lora_model_path, config)):
-                print(f"Saving {config} from {lora_model_path}")
+                print(f"从 {lora_model_path} 保存 {config}")
                 with open(os.path.join(lora_model_path, config),'r') as f:
                     obj = json.load(f)
             else:
-                print(f"Saving {config} from {base_model_path}")
+                print(f"从 {base_model_path}保存 {config}")
                 with open(os.path.join(base_model_path, config),'r') as f:
                     obj = json.load(f)
                 if config=='config.json':
@@ -343,5 +335,5 @@ if __name__=='__main__':
                     obj['metadata']['total_size'] = total_size
             with open(os.path.join(output_dir, config), 'w') as f:
                 json.dump(obj, f, indent=2)
-    print("Done.")
-    print(f"Check output dir: {output_dir}")
+    print("已完成.")
+    print(f"输出目录: {output_dir}")
