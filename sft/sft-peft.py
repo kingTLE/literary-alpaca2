@@ -10,7 +10,7 @@ from typing import Optional, List, Union, Sequence, Dict
 
 import torch
 from datasets import load_dataset, concatenate_datasets,load_from_disk
-from peft import LoraConfig, get_peft_model, get_peft_model_state_dict
+from peft import LoraConfig, get_peft_model, get_peft_model_state_dict,PeftModel
 from peft.tuners.lora import LoraLayer
 from sklearn.model_selection import train_test_split
 from transformers import (
@@ -53,9 +53,9 @@ class MyTrainingArguments(TrainingArguments):
     double_quant: Optional[bool] = field(default=True)
     quant_type: Optional[str] = field(default="nf4")
     load_in_kbits: Optional[int] = field(default=16)
-    max_steps: Optional[int] = field(default=50)
+    max_steps: Optional[int] = field(default=10)
     output_dir: Optional[str] = field(default=tempfile.mkdtemp())
-    run_name: Optional[str] = field(default=output_dir)
+    peft_path: Optional[str] = field(default=None)
     evaluation_strategy: Optional[str] = field(default="steps")
     save_strategy: Optional[str] = field(default="steps")
 
@@ -141,7 +141,7 @@ def build_instruction_dataset(data_path: Union[List[str], str],
 
     try:
         all_datasets = load_from_disk(data_cache_dir)
-        logger.info(f'数据集，{file}从磁盘加载')
+        logger.info(f'数据集从磁盘加载')
     except Exception:
         for file in data_path:
             # 如果未指定数据缓存目录，将其设为文件所在目录
@@ -246,8 +246,9 @@ def main():
         data_cache_dir=data_args.data_cache_dir,
         preprocessing_num_workers=data_args.preprocessing_num_workers
     )
-
+    # dataset_paths=dataset_paths['test'].train_test_split(test_size=0.1)
     train_dataset =dataset_paths['train']
+    # eval_dataset =dataset_paths['test'].train_test_split(test_size=0.1)['test']
     eval_dataset =dataset_paths['test']
     print(f"训练数据长度：{len(train_dataset)}")
     print(f"评估数据长度：{len(eval_dataset)}")
@@ -305,14 +306,19 @@ def main():
     embedding_size = model.get_input_embeddings().weight.shape[0]
     if len(tokenizer) > embedding_size:
         model.resize_token_embeddings(len(tokenizer))
-    peft_config = LoraConfig(
-        task_type='CAUSAL_LM',
-        inference_mode=False,
-        r=64, lora_alpha=128,
-        target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj', 'up_proj'],
-        modules_to_save=['embed_tokens', 'lm_head'],
-        lora_dropout=0.05)
-    model = get_peft_model(model, peft_config)
+        
+    if training_args.peft_path is not None:
+        model = PeftModel.from_pretrained(model, training_args.peft_path)
+    else:
+        peft_config = LoraConfig(
+            task_type='CAUSAL_LM',
+            inference_mode=False,
+            r=64, lora_alpha=128,
+            target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj', 'up_proj'],
+            modules_to_save=['embed_tokens', 'lm_head'],
+            lora_dropout=0.05)
+        model = get_peft_model(model, peft_config)
+
     for name, param in model.named_parameters():
         print('\n requires_grad属性2:', name, param.requires_grad, "\n")
     for name, module in model.named_modules():
@@ -360,18 +366,20 @@ def main():
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
-
-    if training_args.validation_file is not None:
+    if eval_dataset is not None:
         logger.info("开始评估")
 
+        # 执行评估
         metrics = trainer.evaluate()
         metrics["eval_samples"] = len(eval_dataset)
+
         try:
             perplexity = math.exp(metrics["eval_loss"])
         except OverflowError:
             perplexity = float("inf")
         metrics["perplexity"] = perplexity
 
+        # 记录评估指标
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
