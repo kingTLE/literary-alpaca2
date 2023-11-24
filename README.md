@@ -204,7 +204,7 @@ python merge_lora_low_mem.py\
 
 ### 微调脚本
 
-运行sft目录下[sft/sft-peft.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.sh)即可启动训练，具体实现代码见[sft/sft-peft.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.sh)
+运行sft目录下[sft/sft-peft.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.sh)即可启动训练，具体实现代码见[sft/sft-peft.py](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.py)
 
 
 
