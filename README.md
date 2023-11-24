@@ -166,24 +166,45 @@ python merge_lora_low_mem.py\
 ## 微调
 
 ### 数据准备
-使用sft目录下的转换脚本可以将数据集转换为需要的训练格式：
-- Stanford-alpacag格式：[LCCD转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_lccd.py) [Math23K转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_math.py)
+使用sft目录下的转换脚本可以将数据集转换为需要的训练格式，本项目使用的原始数据集都为json格式请按需修改转换脚本：
 
-每个csv文件中包含一列“text”，每一行为一个训练样例，每个训练样例按照以下格式将问题和答案组织为模型输入，您可以按照以下格式自定义训练和验证数据集：
+- Stanford Alpaca格式：[LCCD转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_lccd.py) [Math23K转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_math.py)
 
+生成的json文件格式为：
+```
+[
+  {"instruction" : ...,
+   "input" : ...,
+   "output" : ...},
+  ...
+]
+```
+例如:
+```
+  {
+    "instruction": "下面是人类之间的对话与交流",
+    "input": "火锅 我 在 重庆 成都 吃 了 七八 顿 火锅",
+    "output": [
+      "哈哈哈哈 ！ 那 我 的 嘴巴 可能 要 烂掉 ！",
+      "不会 的 就是 好 油腻"
+    ]
+  }
+```
 - csv格式：[LCCD转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/lccd_csv.py) [Math23K转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/math_csv.py)
 
-转换的csv文件中包含一列“text”，每一行为一个训练样例，每个训练样例按照以下格式将问题和答案组织为模型输入，您可以按照以下格式自定义训练和验证数据集：
+转换的csv文件中包含一列“text”，每一行为一个训练样例，每个训练样例按照以下格式组织为模型的输入：
 ```
-"<s>Human: "+问题+"\n</s><s>Assistant: "+答案
+"<s>Human: "+...+"\n</s><s>Assistant: "+...
 ```
-例如，
+例如:
 ```
-<s>Human: 用一句话描述地球为什么是独一无二的。</s><s>Assistant: 因为地球是目前为止唯一已知存在生命的行星。</s>
+<s>Human: 镇海雅乐学校二年级的小朋友到一条小路的一边植树．小朋友们每隔2米种一棵树（马路两头都种了树），最后发现一共种了11棵，这条小路长多少米．</s><s>Assistant: 根据方程式x=(11-1)*2解得:
+20</s>
 ```
+
 ### 微调脚本
 
-LoRA微调脚本见：[train/sft/finetune_lora.sh](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_lora.sh)，关于LoRA微调的具体实现代码见[train/sft/finetune_clm_lora.py](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/train/sft/finetune_clm_lora.py)
+运行sft目录下[sft/sft-peft.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.sh)即可启动训练，具体实现代码见[sft/sft-peft.sh](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/sft-peft.sh)
 
 
 
