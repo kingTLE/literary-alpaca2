@@ -166,11 +166,14 @@ python merge_lora_low_mem.py\
 ## 微调
 
 ### 数据准备
-在data目录下提供了一份用于模型sft的数据样例：
-- 训练数据：[data/train_sft.csv](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/data/train_sft.csv)
-- 验证数据：[data/dev_sft.csv](https://github.com/FlagAlpha/Llama2-Chinese/blob/main/data/dev_sft.csv)
+使用sft目录下的转换脚本可以将数据集转换为需要的训练格式：
+- Stanford-alpacag格式：[LCCD转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_lccd.py) [Math23K转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/Stanford_math.py)
 
 每个csv文件中包含一列“text”，每一行为一个训练样例，每个训练样例按照以下格式将问题和答案组织为模型输入，您可以按照以下格式自定义训练和验证数据集：
+
+- csv格式：[LCCD转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/lccd_csv.py) [Math23K转换脚本](https://github.com/kingTLE/literary-alpaca2/tree/main/sft/math_csv.py)
+
+转换的csv文件中包含一列“text”，每一行为一个训练样例，每个训练样例按照以下格式将问题和答案组织为模型输入，您可以按照以下格式自定义训练和验证数据集：
 ```
 "<s>Human: "+问题+"\n</s><s>Assistant: "+答案
 ```
