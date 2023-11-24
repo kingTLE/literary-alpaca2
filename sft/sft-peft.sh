@@ -1,20 +1,20 @@
-output_model=/root/sft-lora
+output_model=/root/autodl-tmp/sft-lora
 model=/root/autodl-fs/train2/working
-dataset=/root/autodl-fs/train2/working/dataset_cache
-
 
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32
-torchrun --nnodes 1 --nproc_per_node 1 /root/autodl-fs/train/pretrain-peft2.py \
-    --deepspeed /root/autodl-fs/train/deepspeed_config_peft2.json \
-    --train_files dataset \
+torchrun --nnodes 1 --nproc_per_node 1 ./sft-peft.py \
+    --deepspeed ./deepspeed_config_sft.json \
+    --train_files ./data \
+    --data_cache_dir ./data \
     --output_dir ${output_model} \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
     --preprocessing_num_workers 15 \
     --hub_token "" \
     --push_to_hub false \
+    --hub_model_id "" \
+    --load_best_model_at_end  True \
     --logging_first_step True \
-    --hub_model_id "taotie1/literary-alpaca2-13B" \
     --lr_scheduler_type cosine \
     --learning_rate 2e-5 \
     --use_fast_tokenizer false\
@@ -22,8 +22,8 @@ torchrun --nnodes 1 --nproc_per_node 1 /root/autodl-fs/train/pretrain-peft2.py \
     --logging_dir '/root/tf-logs' \
     --logging_strategy steps \
     --logging_steps 1 \
-    --save_steps 100 \
-    --eval_steps 10 \
+    --save_steps 200 \
+    --eval_steps 50 \
     --save_total_limit 5 \
     --seed 42 \
     --disable_tqdm false \
