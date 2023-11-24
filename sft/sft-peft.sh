@@ -1,18 +1,18 @@
-output_model=/root/autodl-tmp/sft-lora
+output_model=/root/autodl-tmp/lora
 model=/root/autodl-fs/train2/working
 
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32
 torchrun --nnodes 1 --nproc_per_node 1 ./sft-peft.py \
     --deepspeed ./deepspeed_config_sft.json \
-    --train_files ./data \
-    --data_cache_dir ./data \
+    --train_files ../data  \
+    --data_cache_dir ../data-cache \
     --output_dir ${output_model} \
-    --per_device_train_batch_size 1 \
-    --per_device_eval_batch_size 1 \
-    --preprocessing_num_workers 15 \
     --hub_token "" \
     --push_to_hub false \
     --hub_model_id "" \
+    --per_device_train_batch_size 1 \
+    --per_device_eval_batch_size 1 \
+    --preprocessing_num_workers 15 \
     --load_best_model_at_end  True \
     --logging_first_step True \
     --lr_scheduler_type cosine \
@@ -22,15 +22,14 @@ torchrun --nnodes 1 --nproc_per_node 1 ./sft-peft.py \
     --logging_dir '/root/tf-logs' \
     --logging_strategy steps \
     --logging_steps 1 \
-    --save_steps 200 \
-    --eval_steps 50 \
+    --save_steps 1000 \
+    --eval_steps 200  \
     --save_total_limit 5 \
-    --seed 42 \
+    --seed 50 \
     --disable_tqdm false \
     --ddp_find_unused_parameters false \
     --block_size 4096 \
     --report_to tensorboard \
-    --run_name ${output_model} \
     --ignore_data_skip true \
     --ddp_timeout 18000000 \
     --load_in_kbits 4 \
@@ -40,4 +39,6 @@ torchrun --nnodes 1 --nproc_per_node 1 ./sft-peft.py \
     | tee -a ${model}/trains.log
 
 #    --resume_from_checkpoint ${output_model}/checkpoint-20400 \
+    # --peft_path /root/autodl-tmp/sft-lora \
+
 
