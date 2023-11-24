@@ -2,6 +2,7 @@ import logging
 import math
 import os
 import tempfile
+import shutil
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -52,8 +53,7 @@ class MyTrainingArguments(TrainingArguments):
     double_quant: Optional[bool] = field(default=True)
     quant_type: Optional[str] = field(default="nf4")
     load_in_kbits: Optional[int] = field(default=16)
-    max_steps: Optional[int] = field(default=100)
-    # load_best_model_at_end: Optional[bool] = field(default=True)
+    max_steps: Optional[int] = field(default=50)
     output_dir: Optional[str] = field(default=tempfile.mkdtemp())
     run_name: Optional[str] = field(default=output_dir)
     evaluation_strategy: Optional[str] = field(default="steps")
@@ -139,21 +139,19 @@ def build_instruction_dataset(data_path: Union[List[str], str],
     if not isinstance(data_path, (list, tuple)):
         data_path = [data_path]
 
-    for file in data_path:
-        # 如果未指定数据缓存目录，将其设为文件所在目录
-        if data_cache_dir is None:
-            data_cache_dir = str(os.path.dirname(file))
-        # 构建缓存文件路径
-        cache_path = os.path.join(data_cache_dir, os.path.basename(file).split('.')[0] + f"_{max_seq_length}")
+    try:
+        all_datasets = load_from_disk(data_cache_dir)
+        logger.info(f'数据集，{file}从磁盘加载')
+    except Exception:
+        for file in data_path:
+            # 如果未指定数据缓存目录，将其设为文件所在目录
+            if data_cache_dir is None:
+                data_cache_dir = str(os.path.dirname(file))
+            # 构建缓存文件路径
+            cache_path = os.path.join(data_cache_dir, os.path.basename(file).split('.')[0] + f"_{max_seq_length}")
+            # 创建缓存目录，如果不存在的话
+            os.makedirs(cache_path, exist_ok=True)
 
-        # 创建缓存目录，如果不存在的话
-        os.makedirs(cache_path, exist_ok=True)
-
-        try:
-            processed_dataset = load_from_disk(cache_path)
-            logger.info(f'训练数据集，{file}从磁盘加载')
-        except Exception:
-            # 如果加载失败，加载原始数据集，并应用 tokenization 函数进行预处理
             raw_dataset = load_dataset("json", data_files=file, cache_dir=cache_path)
             tokenization_func = tokenization
             tokenized_dataset = raw_dataset.map(
@@ -162,17 +160,15 @@ def build_instruction_dataset(data_path: Union[List[str], str],
                 num_proc=preprocessing_num_workers,
                 remove_columns=["instruction", "input", "output"],
                 keep_in_memory=False,
-                desc="preprocessing on dataset",
             )
             processed_dataset = tokenized_dataset
-            processed_dataset.save_to_disk(cache_path)
+            # 将数据集格式设置为 PyTorch 格式
+            processed_dataset.set_format('torch')
+            all_datasets.append(processed_dataset['train'])
 
-        # 将数据集格式设置为 PyTorch 格式
-        processed_dataset.set_format('torch')
-        all_datasets.append(processed_dataset['train'])
-
-    # 将所有数据集拼接成一个大的数据集
-    all_datasets = concatenate_datasets(all_datasets)
+        all_datasets = concatenate_datasets(all_datasets)
+        all_datasets= all_datasets.train_test_split(test_size=0.1)
+        all_datasets.save_to_disk(data_cache_dir)
     return all_datasets
 
 
@@ -241,21 +237,21 @@ def main():
 
     print('加载分词器结束')
 
-    files = [str(file) for file in Path(data_args.train_files).glob("*.json")]
+    files = [str(file) for path in data_args.train_files for file in Path(path).glob("*.json")]
     print('文件列表：',files)
-    dataset = build_instruction_dataset(
+    dataset_paths = build_instruction_dataset(
         data_path=files,
         tokenizer=tokenizer,
         max_seq_length=data_args.block_size,
-        data_cache_dir=None,
-        preprocessing_num_workers=data_args.preprocessing_num_workers)
+        data_cache_dir=data_args.data_cache_dir,
+        preprocessing_num_workers=data_args.preprocessing_num_workers
+    )
 
-    train_dataset, eval_dataset = train_test_split(dataset, test_size=0.1,
-                                                   random_state=training_args.seed)
-    logger.info(f"训练数据长度：{len(train_dataset)}")
-    logger.info(f"评估数据长度：{len(eval_dataset)}")
-
-    logger.info(tokenizer.decode(train_dataset['input_ids'][0]))
+    train_dataset =dataset_paths['train']
+    eval_dataset =dataset_paths['test']
+    print(f"训练数据长度：{len(train_dataset)}")
+    print(f"评估数据长度：{len(eval_dataset)}")
+    print(tokenizer.decode(train_dataset[0]['input_ids']))
     # config = AutoConfig.from_pretrained(model_args.pretrained_model_name, pretraining_tp=1)
 
     print('开始加载模型')
@@ -280,7 +276,6 @@ def main():
         # config=config,
         load_in_4bit=load_in_4bit,
         load_in_8bit=load_in_8bit,
-        low_cpu_mem_usage=True,
         quantization_config=quantization_config,
     )
     print('加载模型结束')
@@ -339,15 +334,16 @@ def main():
     model.state_dict = (
         lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())
     ).__get__(model, type(model))
+    
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
-    trainer = init_trainer(model, training_args, train_dataset, eval_dataset, tokenizer, data_collator)
+    
+    trainer = init_trainer(model, training_args, train_dataset, eval_dataset, tokenizer,data_collator)
     # 添加早停回调
     early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=3)
     trainer.add_callback(early_stopping_callback)
 
     loss_logging_callback = LossLoggingCallback()
     trainer.add_callback(loss_logging_callback)
-
     checkpoint = None
     if training_args.resume_from_checkpoint is not None:
         checkpoint = training_args.resume_from_checkpoint
