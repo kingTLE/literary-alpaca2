@@ -33,8 +33,8 @@ with open('../data/math23k_train.json', 'r', encoding='utf-8') as json_file:
                 # 创建数据字典
                 data_dict = {
                     "instruction": original_text,
-                    "input": equation,
-                    "output": ans
+                    "input": '根据方程式:'+equation,
+                    "output": '解得:'+ans
                 }
 
                 # 将数据字典添加到列表中
