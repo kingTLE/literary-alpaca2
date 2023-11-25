@@ -53,7 +53,7 @@ class MyTrainingArguments(TrainingArguments):
     double_quant: Optional[bool] = field(default=True)
     quant_type: Optional[str] = field(default="nf4")
     load_in_kbits: Optional[int] = field(default=16)
-    max_steps: Optional[int] = field(default=10)
+    max_steps: Optional[int] = field(default=40)
     output_dir: Optional[str] = field(default=tempfile.mkdtemp())
     peft_path: Optional[str] = field(default=None)
     evaluation_strategy: Optional[str] = field(default="steps")
@@ -234,7 +234,8 @@ def main():
     }
 
     tokenizer = AutoTokenizer.from_pretrained(model_args.tokenizer_name, **tokenizer_kwargs)
-
+    # tokenizer.add_eos_token = True
+    tokenizer.pad_token = tokenizer.eos_token
     print('加载分词器结束')
 
     files = [str(file) for path in data_args.train_files for file in Path(path).glob("*.json")]
@@ -319,8 +320,8 @@ def main():
             lora_dropout=0.05)
         model = get_peft_model(model, peft_config)
 
-    for name, param in model.named_parameters():
-        print('\n requires_grad属性2:', name, param.requires_grad, "\n")
+    # for name, param in model.named_parameters():
+    #     print('\n requires_grad属性2:', name, param.requires_grad, "\n")
     for name, module in model.named_modules():
         if isinstance(module, LoraLayer):
             if training_args.bf16:
