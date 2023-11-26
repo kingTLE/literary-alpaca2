@@ -40,7 +40,11 @@
 | 网络小说                                                   | 高质量长文本数据 |
 | [Math23K](https://opendatalab.org.cn/Math23K)               | 中文数学问题                                          |
 | [LCCC](https://github.com/thu-coai/CDial-GPT)               | 中文开源对话集                                       |
-
+LCCC数据集使用方法：
+```
+from datasets import load_dataset
+dataset = load_dataset("lccc", "base")  # or "large"
+```
 </br></br>
 词表与预训练阶段数据对比图：
 <p align="center"> <img src="img/data_comparison.png" width=80%/> </p>
