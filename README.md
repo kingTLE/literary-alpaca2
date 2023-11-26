@@ -46,7 +46,7 @@ from datasets import load_dataset
 dataset = load_dataset("lccc", "base")  # or "large"
 ```
 </br></br>
-词表与预训练阶段数据对比图：
+词表与预训练阶段数据对比图，图中展示了每个数据源的文件个数和文件总大小，对比每个文件的最小字符和最大字符数以及平均字符数：
 <p align="center"> <img src="img/data_comparison.png" width=80%/> </p>
 
 ## ⏬ 模型部署
