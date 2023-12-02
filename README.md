@@ -170,6 +170,10 @@ python merge_lora_low_mem.py\
 
 ## 微调
 
+简单数据集进行个性化调整的展示：
+<p align="center"> <img src="img/show.png" width=80%/> </p>
+
+
 ### 数据准备
 使用sft目录下的转换脚本可以将数据集转换为需要的训练格式，本项目使用的原始数据集都为json格式请按需修改转换脚本：
 
