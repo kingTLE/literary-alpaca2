@@ -171,7 +171,7 @@ python merge_lora_low_mem.py\
 ## 微调
 
 简单数据集进行个性化调整的展示：
-<p align="center"> <img src="img/show.png" width=80%/> </p>
+<p align="center"> <img src="img/show.png" width=100%/> </p>
 
 
 ### 数据准备
